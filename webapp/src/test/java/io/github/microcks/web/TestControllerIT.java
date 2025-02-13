@@ -15,6 +15,8 @@
  */
 
 package io.github.microcks.web;
+import static org.awaitility.Awaitility.await;
+import java.util.concurrent.TimeUnit;
 
 import io.github.microcks.domain.RequestResponsePair;
 import io.github.microcks.domain.TestResult;
@@ -75,12 +77,15 @@ class TestControllerIT extends AbstractBaseIT {
       assertTrue(testResult.isInProgress());
       assertEquals(testEndpoint, testResult.getTestedEndpoint());
 
-      // Wait till timeout and re-fetch the result.
-      try {
-         Thread.sleep(2000);
-      } catch (InterruptedException e) {
-         throw new RuntimeException(e);
-      }
+     // Wait until the test result is no longer in progress
+     TestResult finalTestResult = testResult;
+     await().atMost(5, TimeUnit.SECONDS)  // Maximum wait time of 5 seconds
+       .pollInterval(500, TimeUnit.MILLISECONDS)  // Check every 500ms
+       .until(() -> {
+         ResponseEntity<TestResult> waitResponse = restTemplate.getForEntity("/api/tests/" + finalTestResult.getId(), TestResult.class);
+         TestResult updatedTestResult = waitResponse.getBody();
+         return updatedTestResult != null && !updatedTestResult.isInProgress(); // Stop waiting if test is done
+       });
 
       response = restTemplate.getForEntity("/api/tests/" + testResult.getId(), TestResult.class);
       assertEquals(200, response.getStatusCode().value());
@@ -125,14 +130,19 @@ class TestControllerIT extends AbstractBaseIT {
       assertTrue(testResult.isInProgress());
       assertEquals(testEndpoint, testResult.getTestedEndpoint());
 
-      // Wait till timeout and re-fetch the result.
-      try {
-         Thread.sleep(2000);
-      } catch (InterruptedException e) {
-         throw new RuntimeException(e);
-      }
+      // Wait until the test result is no longer in progress
+       TestResult finalTestResult = testResult;
+       await().atMost(5, TimeUnit.SECONDS)  // Maximum wait time of 5 seconds
+         .pollInterval(500, TimeUnit.MILLISECONDS)  // Check every 500ms
+         .until(() -> {
+           ResponseEntity<TestResult> waitResponse = restTemplate.getForEntity("/api/tests/" + finalTestResult.getId(), TestResult.class);
+           TestResult updatedTestResult = waitResponse.getBody();
+           return updatedTestResult != null && !updatedTestResult.isInProgress(); // Stop waiting if test is done
+         });
 
-      response = restTemplate.getForEntity("/api/tests/" + testResult.getId(), TestResult.class);
+
+
+     response = restTemplate.getForEntity("/api/tests/" + testResult.getId(), TestResult.class);
       assertEquals(200, response.getStatusCode().value());
 
       testResult = response.getBody();
@@ -177,12 +187,15 @@ class TestControllerIT extends AbstractBaseIT {
       assertTrue(testResult.isInProgress());
       assertEquals(testEndpoint, testResult.getTestedEndpoint());
 
-      // Wait till timeout and re-fetch the result.
-      try {
-         Thread.sleep(2000);
-      } catch (InterruptedException e) {
-         throw new RuntimeException(e);
-      }
+     // Wait until the test result is no longer in progress
+     TestResult finalTestResult = testResult;
+     await().atMost(5, TimeUnit.SECONDS)  // Maximum wait time of 5 seconds
+       .pollInterval(500, TimeUnit.MILLISECONDS)  // Check every 500ms
+       .until(() -> {
+         ResponseEntity<TestResult> waitResponse = restTemplate.getForEntity("/api/tests/" + finalTestResult.getId(), TestResult.class);
+         TestResult updatedTestResult = waitResponse.getBody();
+         return updatedTestResult != null && !updatedTestResult.isInProgress(); // Stop waiting if test is done
+       });
 
       response = restTemplate.getForEntity("/api/tests/" + testResult.getId(), TestResult.class);
       assertEquals(200, response.getStatusCode().value());
