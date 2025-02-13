@@ -72,7 +72,7 @@ public class RuntimeReflectionRegistrationFeature implements Feature {
     * Register all class elements (constructors, methods, fields) for reflection in GraalVM.
     * @param clazz The class to register.
     */
-   public void registerClassForReflection(Class clazz) {
+   public void registerClassForReflection(Class<?> clazz) {
       logger.debugf("Registering %s for reflection", clazz.getCanonicalName());
       RuntimeReflection.register(clazz);
       RuntimeReflection.register(clazz.getDeclaredConstructors());
